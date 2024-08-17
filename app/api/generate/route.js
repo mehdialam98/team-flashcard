@@ -14,34 +14,35 @@ const systemPrompt =
 8. Vary the types of questions (e.g., definitions, examples, comparisons) to promote comprehensive learning.
 9. Tailor the difficulty level to the user's specified knowledge level.
 10. When given a topic, create a balanced set of flashcards that cover its main aspects.
+11. Only generate 10 flashcards.
 
     Remember to format your response as a JSON array of flashcards, where each flashcard is an object with a question and answer property.
     Return in the following JSON format:
         {
-            "flashcards":{
-                "front": str,
-                "back": str
-            }
+            "flashcards": [
+                {
+                    "front": "question",
+                    "back": "answer"
+                }
+            ]
         }`
 
-
-
 export async function POST(req) {
-  const openai = new OpenAI()
-  const data = await req.text();
+  const openai = new OpenAI();
+  const data = await req.json();
 
+  try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: data }
+        { role: "user", content: data.prompt }
       ],
       response_format: { type: "json_object" }
     });
 
-    // Parse the content as JSON
     const flashcards = JSON.parse(completion.choices[0].message.content);
-    return NextResponse.json(flashcards.flashcard);
+    return NextResponse.json(flashcards.flashcards);
 
 
 }
