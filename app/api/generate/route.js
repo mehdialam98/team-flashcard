@@ -16,49 +16,32 @@ const systemPrompt =
 10. When given a topic, create a balanced set of flashcards that cover its main aspects.
 
     Remember to format your response as a JSON array of flashcards, where each flashcard is an object with a question and answer property.
-    Return in the following format:
-    [
+    Return in the following JSON format:
         {
-            "question": "What is the capital of France?",
-            "answer": "Paris"
-        }
-    ]`;
+            "flashcards":{
+                "front": str,
+                "back": str
+            }
+        }`
 
 
 
 export async function POST(req) {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+  const openai = new OpenAI()
+  const data = await req.text();
 
-  const { topic } = await req.json();
-
-  try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",  // Changed from "gpt-4o" to "gpt-4"
+      model: "gpt-4",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `Create flashcards for the topic: ${topic}` }
+        { role: "user", content: data }
       ],
+      response_format: { type: "json_object" }
     });
 
     // Parse the content as JSON
     const flashcards = JSON.parse(completion.choices[0].message.content);
+    return NextResponse.json(flashcards.flashcard);
 
-    // Before parsing, log the data to see what you're receiving
-    console.log("Data received:", completion.choices[0].message.content);
 
-    // Add a try-catch block around your JSON.parse call
-    try {
-      const parsedData = JSON.parse(completion.choices[0].message.content);
-      return NextResponse.json({ flashcards: parsedData });
-    } catch (error) {
-      console.error("Error parsing JSON:", error);
-      console.log("Attempted to parse:", completion.choices[0].message.content);
-      return NextResponse.json({ error: 'Failed to parse flashcards' }, { status: 500 });
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Failed to generate or parse flashcards' }, { status: 500 });
-  }
 }

@@ -1,21 +1,11 @@
 'use client'
-
+import Image from 'next/image'
+import getStripe from '@/utils/get-stripe'
 import { useState } from 'react'
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-} from '@mui/material'
+import { Container, TextField, Button, Typography, Box, Grid, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, AppBar, Toolbar } from '@mui/material'
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import Head from 'next/head';
+
 
 export default function Home() {
   const [text, setText] = useState('')
@@ -83,84 +73,95 @@ export default function Home() {
     }
   }
 
-  return (
-    <Container maxWidth="md">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Generate Flashcards
-        </Typography>
-        <TextField
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          label="Enter text"
-          fullWidth
-          multiline
-          rows={4}
-          variant="outlined"
-          sx={{ mb: 2 }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          fullWidth
-        >
-          Generate Flashcards
-        </Button>
-        {flashcards.length > 0 && (
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-            <Button variant="contained" color="primary" onClick={handleOpenDialog}>
-              Save Flashcards
-            </Button>
-          </Box>
-        )}
-      </Box>
-      
-      {flashcards.length > 0 && (
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" component="h2" gutterBottom>
-            Generated Flashcards
-          </Typography>
-          <Grid container spacing={2}>
-            {flashcards.map((flashcard, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6">Front:</Typography>
-                    <Typography>{flashcard.front}</Typography>
-                    <Typography variant="h6" sx={{ mt: 2 }}>Back:</Typography>
-                    <Typography>{flashcard.back}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
 
-      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Save Flashcard Set</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Please enter a name for your flashcard set.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Set Name"
-            type="text"
-            fullWidth
-            value={setName}
-            onChange={(e) => setSetName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={saveFlashcards} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+  return (
+    <Container maxWidth="100vw" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+      <Head>
+        <title>Flashcard SaaS</title>
+      </Head>
+
+      <AppBar position="static" sx={{ width: '100%' }}>
+        <Toolbar>
+          <Typography variant="h6" style={{ flexGrow: 1 }}>Flashcard SaaS</Typography>
+          <SignedOut>
+            <Button color="inherit" href='/sign-in'>Login</Button>
+            <Button color="inherit" href='/sign-up'>Sign Up</Button>
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+        </Toolbar>
+      </AppBar>
+
+      <Box sx={{ textAlign: 'center', mt: 4 }}>
+        <Typography variant="h2">Welcome to Flashcard SaaS</Typography>
+        <Typography variant="h5">
+          {' '}
+          Create flashcards and study them later
+        </Typography>
+        <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+          Get Started
+        </Button>
+      </Box>
+
+      <Box sx={{ mt: 4, textAlign: 'center', width: '100%' }}>
+        <Typography variant="h4" component="h2">Features</Typography>
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={4} md={4}>
+            <Typography variant="h6">Easy Text Input</Typography>
+            <Typography>
+              {' '}
+              Enter your text and generate flashcards in seconds. Creating flashcards has never been easier.
+            </Typography>
+          </Grid>
+          <Grid item xs={4} md={4}>
+            <Typography variant="h6">Smart Flashcards</Typography>
+            <Typography>
+              {' '}
+              Our AI intelligently breaks down your text into flashcards, optimizing your learning experience.
+            </Typography>
+          </Grid>
+          <Grid item xs={4} md={4}>
+            <Typography variant="h6">Access Anywhere</Typography>
+            <Typography>
+              {' '}
+              Access your flashcards from anywhere, anytime. Our platform is designed to be accessible on any device.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mt: 6, textAlign: 'center', width: '100%' }}>
+
+        <Typography variant="h4" component="h2">Pricing</Typography>
+
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={12} md={6}>
+            <Box sx={{ p: 3, border: '1px solid #ccc', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+              <Typography variant="h5">Basic Plan</Typography>
+              <Typography variant="h6">$5 / month</Typography>
+              <Typography>
+                {' '}
+                Access to basic features with limited storage.
+              </Typography>
+              <Button variant="contained" color="primary" sx={{ mt: 2 }}>Choose Basic</Button>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ p: 3, border: '1px solid #ccc', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+              <Typography variant="h5">Pro</Typography>
+              <Typography variant="h6">$10 / month</Typography>
+              <Typography>
+                {' '}
+                Access to all features with unlimited storage.
+              </Typography>
+              <Button variant="contained" color="primary" sx={{ mt: 2 }}>Choose Pro</Button>
+            </Box>
+          </Grid>
+        </Grid>
+
+      </Box>
     </Container>
   )
 }
