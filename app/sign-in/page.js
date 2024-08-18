@@ -1,6 +1,6 @@
-import { Container, Box, Typography, AppBar, Toolbar, Button } from '@mui/material'
-import { SignIn } from '@clerk/nextjs'
-import Link from 'next/link'
+import { Container, Box, Typography, AppBar, Toolbar, Button } from '@mui/material';
+import { SignIn } from '@clerk/nextjs';
+import Link from 'next/link';
 
 export default function SignUpPage() {
   return (
@@ -22,7 +22,7 @@ export default function SignUpPage() {
           </Button>
         </Toolbar>
       </AppBar>
-      
+
       <Box
         display="flex"
         flexDirection="column"
@@ -33,8 +33,8 @@ export default function SignUpPage() {
         <Typography component="h1" variant="h4" mb={4}>
           Sign In
         </Typography>
-        <SignIn />
+        <SignIn routing="hash" />
       </Box>
     </Container>
-  )
+  );
 }

@@ -5,11 +5,9 @@ import {
   AppBar,
   Toolbar,
   Button
-} from '@mui/material'
-import {
-  SignUp
-} from '@clerk/nextjs'
-import Link from 'next/link'
+} from '@mui/material';
+import { SignUp } from '@clerk/nextjs';
+import Link from 'next/link';
 
 export default function SignUpPage() {
   return (
@@ -33,10 +31,10 @@ export default function SignUpPage() {
       </AppBar>
       <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="calc(100vh - 64px)">
         <Typography component="h1" variant="h4" mb={4}>
-          Sign In
+          Sign Up
         </Typography>
-        <SignUp />
+        <SignUp routing="hash" />
       </Box>
     </Container>
-  )
+  );
 }
