@@ -2,56 +2,57 @@
 
 import React from 'react'
 import { useUser } from "@clerk/nextjs"
-import { 
-    Container, 
-    CardContent, Grid, 
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-    TextField,
-    Button,
-    Card,
-    Paper,
-    Typography,
-    Box,
-    CardActionArea,
+import {
+  Container,
+  CardContent, Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  TextField,
+  Button,
+  Card,
+  Paper,
+  Typography,
+  Box,
+  CardActionArea,
 } from "@mui/material"
 import { writeBatch } from "firebase/firestore"
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { db, collection, doc, getDoc } from '../../firebase.js'
 
 const theme = createTheme({
-    palette: {
-      mode: 'dark',
-      primary: {
-        main: '#BB86FC', // A soft purple color
-      },
-      secondary: {
-        main: '#03DAC6', // A teal accent color
-      },
-      background: {
-        default: '#121212', // Dark background
-        paper: '#1E1E1E', // Slightly lighter dark for cards
-      },
-      text: {
-        primary: '#FFFFFF',
-        secondary: '#B3B3B3',
-      },
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#BB86FC', // A soft purple color
     },
-  });
+    secondary: {
+      main: '#03DAC6', // A teal accent color
+    },
+    background: {
+      default: '#121212', // Dark background
+      paper: '#1E1E1E', // Slightly lighter dark for cards
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: '#B3B3B3',
+    },
+  },
+});
 
 export default function Generate() {
-  const {isLoaded, isSignedIn, user} = useUser()
+  const { isLoaded, isSignedIn, user } = useUser()
   const [flashcards, setFlashcards] = useState([])
   const [flipped, setFlipped] = useState({})
   const [text, setText] = useState('')
   const [name, setName] = useState('')
   const [open, setOpen] = useState(false)
   const router = useRouter()
-  
+
   useEffect(() => {
     console.log('Flashcards state updated:', flashcards);
   }, [flashcards]);
@@ -65,15 +66,15 @@ export default function Generate() {
         },
         body: JSON.stringify({ prompt: text })
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       console.log('Received data:', data); // Log the received data
       setFlashcards(data);
-      
+
       if (data.length === 0) {
         console.log('No flashcards were generated.');
       }
@@ -85,44 +86,44 @@ export default function Generate() {
 
   const handleCardClick = (id) => {
     setFlipped(prev => ({
-        ...prev,
-        [id]: !prev[id]
+      ...prev,
+      [id]: !prev[id]
     }))
   }
 
   const handleOpen = () => {
-    setOpenI(true)
+    setOpen(true)
   }
   const handleClose = () => {
-    setOpenI(false)
+    setOpen(false)
   }
   const saveFlashcards = async () => {
     if (!name) {
-        alert('Please enter a name for the flashcards')
-        return
+      alert('Please enter a name for the flashcards')
+      return
     }
-    
+
     const batch = writeBatch(db)
     const userDocRef = doc(collection(db, 'users'), user.id)
     const docSnap = await getDoc(userDocRef)
 
     if (docSnap.exists()) {
-        const collections = docSnap.data().flashcards || []
-        if (collections.find((f) => f.name === name)) {
-            alert('You already have a collection with this name')
-            return
-        } else {
-            collections.push({name})
-            batch.set(userDocRef, {flashcards: collections}, {merge: true})
-        }
+      const collections = docSnap.data().flashcards || []
+      if (collections.find((f) => f.name === name)) {
+        alert('You already have a collection with this name')
+        return
+      } else {
+        collections.push({ name })
+        batch.set(userDocRef, { flashcards: collections }, { merge: true })
+      }
     } else {
-        batch.set(userDocRef, {flashcards: [{name}]})
+      batch.set(userDocRef, { flashcards: [{ name }] })
     }
-    
+
     const colRef = collection(userDocRef, name)
     flashcards.forEach((flashcard) => {
-        const cardDocRef = doc(colRef)
-        batch.set(cardDocRef, flashcard)
+      const cardDocRef = doc(colRef)
+      batch.set(cardDocRef, flashcard)
     })
 
     await batch.commit()
@@ -134,17 +135,17 @@ export default function Generate() {
     <ThemeProvider theme={theme}>
       <Container maxWidth="100vw" sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
         <Box sx={{
-            mt: 4,
-            mb: 6, 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center'
+          mt: 4,
+          mb: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
         }}>
           <Typography component="h1" variant="h2" align="center" color="primary" gutterBottom>
             Generate Flashcards
           </Typography>
 
-          <Paper sx={{p: 4, width: '100%', bgcolor: 'background.paper'}}>
+          <Paper sx={{ p: 4, width: '100%', bgcolor: 'background.paper' }}>
             <TextField
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -153,7 +154,7 @@ export default function Generate() {
               multiline
               rows={4}
               variant="outlined"
-              sx={{mb: 2}}
+              sx={{ mb: 2 }}
             />
 
             <Button variant="contained" color="primary" onClick={handleSubmit} fullWidth>
@@ -163,7 +164,7 @@ export default function Generate() {
         </Box>
 
         {flashcards.length > 0 && (
-          <Box sx={{mt: 4}}>
+          <Box sx={{ mt: 4 }}>
             <Typography variant="h5" color="primary">Flashcard Preview</Typography>
             <Grid container spacing={3}>
               {flashcards.map((flashcard, index) => (
@@ -216,7 +217,7 @@ export default function Generate() {
                 </Grid>
               ))}
             </Grid>
-            <Box sx={{mt: 4, display: 'flex', justifyContent: 'center'}}>
+            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
               <Button variant="contained" color="secondary" onClick={handleOpen}>
                 Save
               </Button>
