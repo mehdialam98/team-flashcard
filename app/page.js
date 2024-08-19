@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Container, TextField, Button, Typography, Box, Grid, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, AppBar, Toolbar } from '@mui/material'
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Head from 'next/head';
+import Link from 'next/link'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // Define a new dark theme
@@ -37,6 +38,38 @@ export default function Home() {
   const handleCloseDialog = () => setDialogOpen(false)
 
   // ... (rest of the functions remain unchanged)
+  const handleSubmit = async (planType) => {
+    try {
+      const checkoutSession = await fetch('/api/checkout_session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planType }), // Send the plan type
+      });
+
+      if (!checkoutSession.ok) {
+        const errorData = await checkoutSession.json();
+        console.error('Error creating checkout session:', errorData.error);
+        return;
+      }
+
+      const checkoutSessionJson = await checkoutSession.json();
+
+      const stripe = await getStripe();
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: checkoutSessionJson.id,
+      });
+
+      if (error) {
+        console.warn(error.message);
+      }
+    } catch (error) {
+      console.error('Unexpected error during checkout:', error);
+    }
+  };
+
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -63,9 +96,11 @@ export default function Home() {
           <Typography variant="h5" color="text.secondary">
             Create flashcards and study them later
           </Typography>
-          <Button variant="contained" color="secondary" sx={{ mt: 2 }}>
-            Get Started
-          </Button>
+          <Link href="/generate" passHref>
+            <Button variant="contained" color="secondary" sx={{ mt: 2 }}>
+              Get Started
+            </Button>
+          </Link>
         </Box>
 
         <Box sx={{ mt: 4, textAlign: 'center', width: '100%' }}>
@@ -102,7 +137,7 @@ export default function Home() {
                 <Typography color="text.secondary">
                   Access to basic features with limited storage.
                 </Typography>
-                <Button variant="contained" color="primary" sx={{ mt: 2 }}>Choose Basic</Button>
+                <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={() => handleSubmit('basic')}>Choose Basic</Button>
               </Box>
             </Grid>
             <Grid item xs={12} md={6}>
@@ -112,7 +147,7 @@ export default function Home() {
                 <Typography color="text.secondary">
                   Access to all features with unlimited storage.
                 </Typography>
-                <Button variant="contained" color="secondary" sx={{ mt: 2 }}>Choose Pro</Button>
+                <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={() => handleSubmit('pro')}>Choose Pro</Button>
               </Box>
             </Grid>
           </Grid>
