@@ -75,12 +75,12 @@ export default function Home() {
     <ThemeProvider theme={theme}>
       <Container maxWidth="100vw" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: 'background.default', minHeight: '100vh' }}>
         <Head>
-          <title>Flashcard SaaS</title>
+          <title>Flashcard AI</title>
         </Head>
 
         <AppBar position="static" sx={{ width: '100%', bgcolor: '#1A237E' }}> {/* Unique dark blue color for navbar */}
           <Toolbar>
-            <Typography variant="h6" style={{ flexGrow: 1 }}>Flashcard SaaS</Typography>
+            <Typography variant="h6" style={{ flexGrow: 1 }}>Flashcard AI</Typography>
             <SignedOut>
               <Button color="inherit" href='/sign-in'>Login</Button>
               <Button color="inherit" href='/sign-up'>Sign Up</Button>
@@ -92,7 +92,7 @@ export default function Home() {
         </AppBar>
 
         <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Typography variant="h2" color="primary.main">Welcome to Flashcard SaaS</Typography>
+          <Typography variant="h2" color="primary.main">Welcome to Flashcard AI</Typography>
           <Typography variant="h5" color="text.secondary">
             Create flashcards and study them later
           </Typography>
