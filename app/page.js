@@ -7,6 +7,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Head from 'next/head';
 import Link from 'next/link'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Analytics } from "@vercel/analytics/react"
 
 // Define a new dark theme
 const theme = createTheme({
@@ -72,6 +73,7 @@ export default function Home() {
 
 
   return (
+    
     <ThemeProvider theme={theme}>
       <Container maxWidth="100vw" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: 'background.default', minHeight: '100vh' }}>
         <Head>
@@ -153,6 +155,7 @@ export default function Home() {
           </Grid>
         </Box>
       </Container>
+      <Analytics />
     </ThemeProvider>
   )
 }
